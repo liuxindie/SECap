@@ -178,9 +178,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Model Training')
-    parser.add_argument("--features_dir", type=str, default="features_vitl14/", help="Directory where cached input image features are stored")
+    parser.add_argument("--features_dir", type=str, default="features/", help="Directory where cached input image features are stored")
     parser.add_argument("--annotations_path", type=str, default="data/dataset_coco.json", help="JSON file with annotations in Karpathy splits")
-    parser.add_argument("--experiments_dir", type=str, default="experiments_vitl14_gate/", help="Directory where trained models will be saved")
+    parser.add_argument("--experiments_dir", type=str, default="experiments/", help="Directory where trained models will be saved")
 
     parser.add_argument("--encoder_name", type=str, default="clip-vit-large-patch14", help="Encoder name as found of HuggingFace or stored locally")
     parser.add_argument("--decoder_name", type=str, default="gpt2", help="Decoder name as found of HuggingFace or stored locally")
