@@ -16,7 +16,7 @@ features_dir = 'features/'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-encoder_name = 'openai/clip-vit-base-patch32'
+encoder_name = 'clip-vit-base-patch32'
 feature_extractor = CLIPFeatureExtractor.from_pretrained(encoder_name) 
 clip_encoder = CLIPVisionModel.from_pretrained(encoder_name).to(device)
 

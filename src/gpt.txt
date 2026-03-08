@@ -20,9 +20,6 @@ import os
 from dataclasses import dataclass
 from typing import Optional, Tuple, Union
 
-# Global counter for debugging gate_score
-GATE_SCORE_PRINT_COUNTER = 0
-
 import torch
 import torch.utils.checkpoint
 from packaging import version
@@ -70,40 +67,6 @@ class ThisGPT2Config(GPT2Config):
         if not hasattr(self, "encoder_hidden_size"):
             self.encoder_hidden_size = self.hidden_size
 
-class SemanticAdaptiveMappingModule(nn.Module):
-    """
-    Semantic Adaptive Mapping Module (SAMM)
-    Based on Squeeze-and-Excitation (SE) block structure adapted for sequence data.
-    Enhances key semantic features from the encoder before cross-attention.
-    """
-    def __init__(self, hidden_dim, reduction=16):
-        super().__init__()
-        # Ensure reduction doesn't make hidden dimension 0
-        reduced_dim = max(1, hidden_dim // reduction)
-        self.fc1 = nn.Linear(hidden_dim, reduced_dim, bias=False)
-        self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(reduced_dim, hidden_dim, bias=False)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        # x shape: [batch_size, seq_len, hidden_dim]
-        
-        # Squeeze: Global Average Pooling over sequence dimension (dim=1)
-        # y shape: [batch_size, hidden_dim]
-        y = x.mean(dim=1)
-        
-        # Excitation
-        y = self.fc1(y)
-        y = self.relu(y)
-        y = self.fc2(y)
-        y = self.sigmoid(y)
-        
-        # Reweight: Element-wise multiplication
-        # Reshape y to [batch_size, 1, hidden_dim] for broadcasting
-        y = y.unsqueeze(1)
-        
-        # Residual Connection: Output = (x * y) + x
-        return x * y + x
 
 class ThisGPT2Attention(GPT2Attention):
     def __init__(self, config, is_cross_attention=False, layer_idx=None):
@@ -122,25 +85,6 @@ class ThisGPT2Attention(GPT2Attention):
                                  self.encoder_hidden_size)
             self.q_attn = Conv1D(int(self.embed_dim / self.cross_attention_reduce_factor), self.embed_dim)
             self.c_proj = Conv1D(self.embed_dim, int(self.embed_dim / self.cross_attention_reduce_factor))
-
-            # Semantic Adaptive Mapping Module
-            self.semantic_adaptive_mapping = SemanticAdaptiveMappingModule(
-                self.encoder_hidden_size, reduction=16
-            )
-            
-            # Head-Specific Gating Mechanism: Applied after SDPA, before output projection
-            # Each head has independent gate parameters for fine-grained control
-            self.head_gate_proj = nn.ModuleList([
-                Conv1D(int(self.head_dim / self.cross_attention_reduce_factor),
-                       int(self.head_dim / self.cross_attention_reduce_factor))
-                for _ in range(self.num_heads)
-            ])
-            
-            # [Initialization Strategy: Start Open]
-            # Initialize each head's gate with small random noise and bias=2.0
-            for gate in self.head_gate_proj:
-                gate.weight.data.normal_(mean=0.0, std=0.02)
-                gate.bias.data.fill_(2.0)  # Sigmoid(2.0) ≈ 0.88 (Gate mostly open)
             
         else:
             self.c_attn = Conv1D(3 * self.embed_dim, self.embed_dim)
@@ -158,10 +102,6 @@ class ThisGPT2Attention(GPT2Attention):
             output_attentions: Optional[bool] = False,
     ) -> Tuple[Union[torch.Tensor, Tuple[torch.Tensor]], ...]:
         if encoder_hidden_states is not None:
-            # Apply Semantic Adaptive Mapping Module to encoder hidden states
-            # before they enter cross-attention key/value projection
-            encoder_hidden_states = self.semantic_adaptive_mapping(encoder_hidden_states)
-            
             if not hasattr(self, "q_attn"):
                 raise ValueError(
                     "If class is used as cross attention, the weights `q_attn` have to be defined. "
@@ -172,7 +112,6 @@ class ThisGPT2Attention(GPT2Attention):
 
             query = self.q_attn(hidden_states)
             key, value = self.c_attn(encoder_hidden_states).split(split_size, dim=2)
-
             attention_mask = encoder_attention_mask
 
             query = self._split_heads(query, self.num_heads, head_dim)
@@ -204,56 +143,12 @@ class ThisGPT2Attention(GPT2Attention):
         else:
             attn_output, attn_weights = self._attn(query, key, value, attention_mask, head_mask)
 
-        # Head-Specific Gating Mechanism: Applied after SDPA, before merging heads
-        # Y' = Y ⊙ σ(Q W_θ) where Y is SDPA output, Q is query before splitting
-        if encoder_hidden_states is not None:
-            # Compute gate scores for each head using the original query (before splitting)
-            # Query shape: [batch_size, num_heads, seq_len, head_dim]
-            batch_size, num_heads, seq_len, head_dim = query.size()
-            
-            # Process each head independently with head-specific gate parameters
-            gated_attn_output = []
-            for head_idx in range(num_heads):
-                # Extract current head's attention output
-                head_attn_output = attn_output[:, head_idx, :, :]  # [batch_size, seq_len, head_dim]
-                
-                # Extract current head's query for gate computation
-                head_query = query[:, head_idx, :, :]  # [batch_size, seq_len, head_dim]
-                
-                # Compute gate score for this head: σ(head_query W_θ_head)
-                # Reshape for linear layer: [batch_size * seq_len, head_dim]
-                head_query_flat = head_query.reshape(-1, head_dim)
-                gate_score = torch.sigmoid(self.head_gate_proj[head_idx](head_query_flat))
-                
-                # Reshape gate score back: [batch_size, seq_len, head_dim]
-                gate_score = gate_score.reshape(batch_size, seq_len, head_dim)
-                
-                # Apply gating: Y' = Y ⊙ gate_score
-                gated_head_output = head_attn_output * gate_score
-                
-                gated_attn_output.append(gated_head_output)
-            
-            # Stack gated outputs back together
-            attn_output = torch.stack(gated_attn_output, dim=1)  # [batch_size, num_heads, seq_len, head_dim]
-            
-            # Debug: Print gate statistics for first layer
-            if self.layer_idx == 0:
-                global GATE_SCORE_PRINT_COUNTER
-                GATE_SCORE_PRINT_COUNTER += 1
-                if GATE_SCORE_PRINT_COUNTER % 500 == 0:
-                    avg_gate_scores = []
-                    for head_idx in range(num_heads):
-                        head_query_flat = query[:, head_idx, :, :].reshape(-1, head_dim)
-                        gate_score = torch.sigmoid(self.head_gate_proj[head_idx](head_query_flat))
-                        avg_gate_scores.append(gate_score.mean().item())
-                    
-#                    print(f"[DEBUG] Step {GATE_SCORE_PRINT_COUNTER} | Head-specific gate scores (Layer 0): "
-#                          f"Mean across heads={torch.tensor(avg_gate_scores).mean():.4f}, "
-#                          f"Min={min(avg_gate_scores):.4f}, "
-#                          f"Max={max(avg_gate_scores):.4f}")
 
-        # Merge heads and apply output projection
+        # 这里也修改了
+        # attn_output = self._merge_heads(attn_output, self.num_heads,
+        #                                 int(self.head_dim / self.cross_attention_reduce_factor))
         attn_output = self._merge_heads(attn_output, self.num_heads, head_dim)
+
         attn_output = self.c_proj(attn_output)
         attn_output = self.resid_dropout(attn_output)
         

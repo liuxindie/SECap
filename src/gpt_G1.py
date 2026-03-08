@@ -229,7 +229,7 @@ class ThisGPT2Attention(GPT2Attention):
                 gate_score = gate_score.reshape(batch_size, seq_len, head_dim)
                 
                 # Apply gating: Y' = Y ⊙ gate_score
-                gated_head_output = head_attn_output * gate_score
+                gated_head_output = head_attn_output + gate_score
                 
                 gated_attn_output.append(gated_head_output)
             
@@ -247,10 +247,10 @@ class ThisGPT2Attention(GPT2Attention):
                         gate_score = torch.sigmoid(self.head_gate_proj[head_idx](head_query_flat))
                         avg_gate_scores.append(gate_score.mean().item())
                     
-#                    print(f"[DEBUG] Step {GATE_SCORE_PRINT_COUNTER} | Head-specific gate scores (Layer 0): "
-#                          f"Mean across heads={torch.tensor(avg_gate_scores).mean():.4f}, "
-#                          f"Min={min(avg_gate_scores):.4f}, "
-#                          f"Max={max(avg_gate_scores):.4f}")
+                    print(f"[DEBUG] Step {GATE_SCORE_PRINT_COUNTER} | Head-specific gate scores (Layer 0): "
+                          f"Mean across heads={torch.tensor(avg_gate_scores).mean():.4f}, "
+                          f"Min={min(avg_gate_scores):.4f}, "
+                          f"Max={max(avg_gate_scores):.4f}")
 
         # Merge heads and apply output projection
         attn_output = self._merge_heads(attn_output, self.num_heads, head_dim)

@@ -65,7 +65,7 @@ class TrainDataset(Dataset):
                                      + len(tokenizer.encode(self.template)) # template
                                      + len(tokenizer.encode('\n\n')) * (k-1) # separator between captions
                                      )
-            assert k is not None 
+            assert k is not None
             self.k = k
         self.rag = rag
 
@@ -74,7 +74,7 @@ class TrainDataset(Dataset):
 
     def __getitem__(self, idx):
         text = self.df['text'][idx]
-        if self.rag: 
+        if self.rag:
             caps = self.df['caps'][idx]
             decoder_input_ids, labels = prep_strings(text, self.tokenizer, template=self.template,
                                                      retrieved_caps=caps, k=self.k, max_length=self.max_target_length)
@@ -82,11 +82,70 @@ class TrainDataset(Dataset):
             decoder_input_ids, labels = prep_strings(text, self.tokenizer, max_length=self.max_target_length)
         # load precomputed features
         encoder_outputs = self.features[self.df['cocoid'][idx]][()]
-        encoding = {"encoder_outputs": torch.tensor(encoder_outputs), 
+        encoding = {"encoder_outputs": torch.tensor(encoder_outputs),
                     "decoder_input_ids": torch.tensor(decoder_input_ids),
                     "labels": torch.tensor(labels)}
 
         return encoding
+
+class VicunaRAGDataset(Dataset):
+    """
+    Dataset for RetrievalAugmentedCaptionModel (Vicuna-based)
+    Separates retrieved captions and target caption into distinct inputs.
+    """
+    def __init__(self, df, features_path, tokenizer, k=4, max_caption_length=25, max_retrieved_length=100):
+        self.df = df
+        self.tokenizer = tokenizer
+        self.features = h5py.File(features_path, 'r')
+        self.k = k
+        self.max_caption_length = max_caption_length
+        self.max_retrieved_length = max_retrieved_length
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        # 1. Target Caption
+        text = self.df['text'][idx]
+        # Format: BOS + Text + EOS
+        text_ids = self.tokenizer.encode(text, add_special_tokens=False)
+        text_ids = text_ids[:self.max_caption_length]
+        
+        # Add BOS/EOS if needed (Vicuna tokenizer usually handles this, but let's be explicit)
+        # Assuming tokenizer.bos_token_id is available
+        input_ids = [self.tokenizer.bos_token_id] + text_ids + [self.tokenizer.eos_token_id]
+        
+        # Padding for target
+        pad_len = self.max_caption_length + 2 - len(input_ids) # +2 for BOS/EOS
+        if pad_len > 0:
+            labels = input_ids + [-100] * pad_len
+            input_ids = input_ids + [self.tokenizer.pad_token_id] * pad_len
+        else:
+            input_ids = input_ids[:self.max_caption_length+2]
+            labels = input_ids
+            
+        # 2. Retrieved Captions
+        caps = self.df['caps'][idx] # List of strings
+        # Join retrieved captions: "Cap1. Cap2. Cap3."
+        retrieved_text = " ".join(caps[:self.k])
+        retrieved_input_ids = self.tokenizer.encode(retrieved_text, add_special_tokens=False)
+        
+        # Truncate/Pad Retrieved
+        if len(retrieved_input_ids) > self.max_retrieved_length:
+            retrieved_input_ids = retrieved_input_ids[:self.max_retrieved_length]
+        else:
+            retrieved_input_ids += [self.tokenizer.pad_token_id] * (self.max_retrieved_length - len(retrieved_input_ids))
+
+        # 3. Visual Features
+        encoder_outputs = self.features[self.df['cocoid'][idx]][()]
+
+        # Return dict matching model.forward signature
+        return {
+            "encoder_outputs": torch.tensor(encoder_outputs),
+            "retrieved_input_ids": torch.tensor(retrieved_input_ids),
+            "input_ids": torch.tensor(input_ids),
+            "labels": torch.tensor(labels)
+        }
 
 
 def load_data_for_training(annot_path, caps_path=None):
