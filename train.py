@@ -90,13 +90,12 @@ def get_model_and_auxiliaries(args):
     print('Training a model with {} trainable parameters.'.format(num_trainable_params))
 
     # --------------------------------------
-    # >>> 新增：打印可训练参数名（调试用）<<<
+    
     print("\n=== 可训练的参数名 ===")
     for name, param in model.named_parameters():
         if param.requires_grad:
             print(f"{name}: {param.shape}")
     print("===========================\n")
-    # --------------------------------------
 
     return model, tokenizer, feature_extractor
 
@@ -153,8 +152,7 @@ def main(args):
         gradient_accumulation_steps=args.gradient_steps,
         learning_rate = args.lr,
 
-        # === 在这里添加 ===
-        weight_decay=0.01,  # 建议设置为 0.01 或 0.05
+        weight_decay=0.01,  # 设置为 0.01 或 0.05
         # ================
 
         fp16=True,
