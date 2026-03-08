@@ -1,9 +1,0 @@
-data/
-experiments*/
-features*/
-datastore/
-clip-vit-base-patch32/
-clip-vit-large-patch14/
-gpt2/
-__pycache__/
-*.pyc
