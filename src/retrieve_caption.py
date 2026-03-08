@@ -138,7 +138,7 @@ def main():
     parser.add_argument(
         "--retrieval_encoder",
         type=str,
-        default="RN50x64",
+        default="ViT-L/14",
         help="CLIP encoder used for retrieval, e.g. RN50x64, ViT-L/14"
     )
     parser.add_argument(
