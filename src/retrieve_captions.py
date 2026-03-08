@@ -73,9 +73,6 @@ def filter_captions(data):
     for image_id, cap, encoding in zip(image_ids, caps, encodings):
         if len(encoding) <= 25:
             filtered_image_ids.append(image_id)
-            # === 核心修复在这里 ===
-            # 原来是: filtered_captions.append(cap) -> 导致后面报错
-            # 现在改为: 保持字典结构
             filtered_captions.append({'image_id': image_id, 'caption': cap})
 
     return filtered_image_ids, filtered_captions
@@ -87,7 +84,6 @@ def encode_captions(captions, model, processor, device):
     encoded_captions = []
     print("Encoding captions...")
 
-    # 现在 captions 是字典列表，这行代码就不会报错了
     text_list = [c['caption'] for c in captions]
 
     for idx in tqdm(range(0, len(text_list), bs)):
@@ -117,7 +113,6 @@ def encode_images(images, image_path, model, processor, device):
             try:
                 # 如果没有去前缀，尝试加上前缀寻找
                 if not os.path.exists(path):
-                    # 备选方案：尝试拼接 "COCO_val2014_" 等前缀，根据你的实际情况调整
                     pass
 
                 image = Image.open(path).convert("RGB")
@@ -131,11 +126,9 @@ def encode_images(images, image_path, model, processor, device):
             continue
 
         with torch.no_grad():
-            # 使用 HF 标准预处理 (Resize + CenterCrop)
-            # 既然你决定跳过手动 Resize，这里直接用 processor 即可
+
             inputs = processor(images=batch_imgs, return_tensors="pt").to(device)
             outputs = model.get_image_features(**inputs)
-            # 归一化
             outputs = outputs / outputs.norm(p=2, dim=-1, keepdim=True)
             image_features.append(outputs.cpu().numpy())
 
@@ -186,7 +179,6 @@ def filter_nns(nns, xb_image_ids, captions, xq_image_ids):
 
 def main():
     parser = argparse.ArgumentParser()
-    # 填你的本地 HuggingFace 文件夹路径
     parser.add_argument("--retrieval_encoder", type=str, required=True, help="Path to local HF model folder")
     parser.add_argument("--coco_data_path", type=str, default='data/dataset_coco.json')
     parser.add_argument("--image_path", type=str, default='data/images/')
