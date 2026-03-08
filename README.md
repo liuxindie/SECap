@@ -46,7 +46,9 @@ git clone https://huggingface.co/openai/clip-vit-large-patch14
 ```
 
 4. **下载gpt2**
+```bash
 git clone https://huggingface.co/gpt2
+```
 
 
 
@@ -156,3 +158,4 @@ python coco-caption/run_eval.py \
     data/dataset_coco.json \
     experiments/rag_7M/checkpoint-17712/test_preds.json
 ```
+
