@@ -11,7 +11,7 @@
 - [Project Introduction](#project-introduction)
 - [Environment Setup](#environment-setup)
 - [Model Training](#model-training)
-- [Inference & Evaluation](#inference--evaluation)
+- [Inference & Evaluation](#inference-evaluation)
 
 ---
 
@@ -112,7 +112,7 @@ experiments/rag_7M/
 └── checkpoint-{final}/
 ```
 
-## 🔧 Inference & Evaluation
+## 🔧 Inference Evaluation
 #### Validation Set Inference
 ```Bash
 python infer.py \
@@ -138,6 +138,7 @@ python coco-caption/run_eval.py \
 ```
 ## Acknowledgments
 This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
 
 
