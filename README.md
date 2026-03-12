@@ -15,7 +15,7 @@
 
 ---
 
-## Project Introduction
+## 🔧 Project Introduction
 
 SECap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module. This code is directly related to our submission to *The Visual Computer*. If you find our code/data/models or ideas useful for your research, please consider citing this paper. DOI URL: https://doi.org/10.5281/zenodo.18977057
 
@@ -46,7 +46,7 @@ git clone [https://huggingface.co/openai/clip-vit-large-patch14](https://hugging
 ```Bash
 git clone [https://huggingface.co/gpt2](https://huggingface.co/gpt2)
 ```
-## Model Training
+## 🔧 Model Training
 ### Data Preparation
 1. **Download the COCO Dataset**
    Download the Karpathy split file dataset_coco.json from[Kaggle](https://www.kaggle.com/datasets/shtvkumar/karpathy-splits).          Place it in the data/ directory.
@@ -112,7 +112,7 @@ experiments/rag_7M/
 └── checkpoint-{final}/
 ```
 
-## Inference & Evaluation
+## 🔧 Inference & Evaluation
 #### Validation Set Inference
 ```Bash
 python infer.py \
@@ -138,5 +138,6 @@ python coco-caption/run_eval.py \
 ```
 ## Acknowledgments
 This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
 
