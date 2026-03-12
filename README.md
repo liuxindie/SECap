@@ -17,7 +17,7 @@
 
 ## 项目简介
 
-SECap是一个创新的图像描述生成系统，通过动态门控增强语义注意力技术与语义自适应映射模块，在仅使用9.8M可训练参数的情况下，实现了与大规模模型相媲美的性能。doi URL：https://doi.org/10.5281/zenodo.18977057
+SECap是一个创新的图像描述生成系统，通过动态门控增强语义注意力技术与语义自适应映射模块，在仅使用9.8M可训练参数的情况下，实现了与大规模模型相媲美的性能。该代码与提交给《The Visual Computer》直接相关，如果你觉得我们的代码/数据/模型或想法对你的研究有用，请考虑引用这篇论文。doi URL：https://doi.org/10.5281/zenodo.18977057
 
 ## 🔧 环境配置
 
@@ -158,5 +158,6 @@ python coco-caption/run_eval.py \
     data/dataset_coco.json \
     experiments/rag_7M/checkpoint-17712/test_preds.json
 ```
+
 
 
