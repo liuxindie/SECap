@@ -101,7 +101,7 @@ python train.py \
 |-----------|-------------|---------------|
 | `--encoder_name` | Name of the vision encoder | `clip-vit-large-patch14` |
 | `--decoder_name` | Name of the language decoder | `gpt2` |
-| `--features_path` | Path to pre-extracted features | 必需 |
+| `--features_path` | Path to pre-extracted features | Required |
 | `--template_path` | Path to prompt template | `src/template.txt` |
 
 ### Training Monitoring
@@ -140,6 +140,7 @@ python coco-caption/run_eval.py \
 ```
 ## Acknowledgments
 This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
 
 
