@@ -68,7 +68,7 @@ data/
 mkdir datastore
 ```
 Download the following files and place them in the datastore/ directory:
-[COCO Index File](https://drive.google.com/file/d/1ZP5I-xbjaNU7cU48C_ctHd95SaA0jBHe/view?usp=sharing)
+[COCO Index File](https://drive.google.com/file/d/1ZP5I-xbjaNU7cU48C_ctHd95SaA0jBHe/view?usp=sharing) and 
 [Associated Captions File](https://drive.google.com/file/d/1BT0Qc6g40fvtnJ_yY0aipfCuCMgu5qaR/view?usp=sharing)
 
 # Create feature directory
@@ -97,11 +97,12 @@ python train.py \
 
 ### Key Parameters Description
 
-Parameter,Description,Default Value
---encoder_name,Name of the vision encoder,clip-vit-large-patch14
---decoder_name,Name of the language decoder,gpt2
---features_path,Path to pre-extracted features,Required
---template_path,Path to prompt template,src/template.txt
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `--encoder_name` | Name of the vision encoder | `clip-vit-large-patch14` |
+| `--decoder_name` | Name of the language decoder | `gpt2` |
+| `--features_path` | Path to pre-extracted features | 必需 |
+| `--template_path` | Path to prompt template | `src/template.txt` |
 
 ### Training Monitoring
 The model will automatically save checkpoints to the experiments/ directory:
@@ -139,6 +140,7 @@ python coco-caption/run_eval.py \
 ```
 ## Acknowledgments
 This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
 
 
