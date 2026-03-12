@@ -137,5 +137,6 @@ python coco-caption/run_eval.py \
     experiments/rag_7M/checkpoint-17712/test_preds.json
 ```
 ## Acknowledgments
-This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap) We thank the authors for open-sourcing their wonderful project.
+This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
