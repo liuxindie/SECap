@@ -49,13 +49,12 @@ git clone [https://huggingface.co/gpt2](https://huggingface.co/gpt2)
 ## 🔧 Model Training
 ### Data Preparation
 1. **Download the COCO Dataset**
-   Download the Karpathy split file dataset_coco.json from[Kaggle](https://www.kaggle.com/datasets/shtvkumar/karpathy-splits).          Place it in the data/ directory.
+Download the Karpathy split file dataset_coco.json from [Kaggle](https://www.kaggle.com/datasets/shtvkumar/karpathy-splits).Place it in the data/ directory.
 2. **Download COCO Images**
-   Download the 2014 version images (train, val, test) from the[COCO Official Website](https://cocodataset.org/#download)
-   Place them in the data/images/ directory.
-   Naming format: 12-digit number + .jpg, e.g., 000000000001.jpg
-3. **Directory Structure**
-```
+Download the 2014 version images (train, val, test) from the [COCO Official Website](https://cocodataset.org/#download).Place them in the data/images/ directory.
+Naming format: 12-digit number + .jpg, e.g., 000000000001.jpg
+4. **Directory Structure**
+```bash
 data/
 ├── dataset_coco.json      # Karpathy划分
 
@@ -138,6 +137,7 @@ python coco-caption/run_eval.py \
 ```
 ## Acknowledgments
 This code utilizes resources from [SmallCap](https://github.com/RitaRamo/smallcap),We thank the authors for open-sourcing their wonderful project.
+
 
 
 
