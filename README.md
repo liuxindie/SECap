@@ -1,4 +1,4 @@
-# SECap - Lightweight Retrieval-Augmented Image Captioning System
+# ViReG-Cap - Lightweight Retrieval-Augmented Image Captioning System
 
 <div align="center">
 **A lightweight image captioning model achieving high performance through retrieval augmentation**
@@ -17,7 +17,7 @@
 
 ## 🔧 Project Introduction
 
-SECap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module. This code is directly related to our submission to *The Visual Computer*. If you find our code/data/models or ideas useful for your research, please consider citing this paper. DOI URL: https://doi.org/10.5281/zenodo.18977057
+ViReG-Cap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module. This code is directly related to our submission to *The Visual Computer*. If you find our code/data/models or ideas useful for your research, please consider citing this paper. DOI URL: https://doi.org/10.5281/zenodo.18977057
 
 ## 🔧 Environment Setup
 
@@ -30,8 +30,8 @@ SECap is an innovative image captioning system that achieves performance compara
 
 1. **Create a Conda Environment**
 ```bash
-conda create -n SECap python=3.9
-conda activate SECap
+conda create -n ViReG-Cap python=3.9
+conda activate ViReG-Cap
 ```
 2.**Install Dependencies**
 ```Bash
