@@ -17,7 +17,7 @@
 
 ## 🔧 Project Introduction
 
-ViReG-Cap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module. This code is directly related to our submission to *The Visual Computer*. If you find our code/data/models or ideas useful for your research, please consider citing this paper. DOI URL: https://doi.org/10.5281/zenodo.18977057
+ViReG-Cap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module.
 
 ## 🔧 Environment Setup
 
