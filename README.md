@@ -1,4 +1,4 @@
-# ViReG-Cap - Lightweight Retrieval-Augmented Image Captioning System
+# VAGCap - Lightweight Retrieval-Augmented Image Captioning System
 
 <div align="center">
 **A lightweight image captioning model achieving high performance through retrieval augmentation**
@@ -17,7 +17,7 @@
 
 ## 🔧 Project Introduction
 
-ViReG-Cap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module.
+VAGCap is an innovative image captioning system that achieves performance comparable to large-scale models with only 9.8M trainable parameters. It utilizes dynamic gating-enhanced semantic attention techniques and a semantic adaptive mapping module.
 
 ## 🔧 Environment Setup
 
